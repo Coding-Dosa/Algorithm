@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Algorithm", "Algorithm\Algorithm.vcxproj", "{5FF1F91E-1289-4B05-BA08-6F84DCE84759}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maze", "Maze\Maze.vcxproj", "{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -18,5 +20,13 @@ Global
 		{5FF1F91E-1289-4B05-BA08-6F84DCE84759}.Release|Win32.Build.0 = Release|Win32
 		{5FF1F91E-1289-4B05-BA08-6F84DCE84759}.Release|x64.ActiveCfg = Release|x64
 		{5FF1F91E-1289-4B05-BA08-6F84DCE84759}.Release|x64.Build.0 = Release|x64
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Debug|Win32.Build.0 = Debug|Win32
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Debug|x64.ActiveCfg = Debug|x64
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Debug|x64.Build.0 = Debug|x64
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Release|Win32.ActiveCfg = Release|Win32
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Release|Win32.Build.0 = Release|Win32
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Release|x64.ActiveCfg = Release|x64
+		{1C8CDE06-4E2B-4BC8-9079-C7EB8DB74FBD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 EndGlobal
