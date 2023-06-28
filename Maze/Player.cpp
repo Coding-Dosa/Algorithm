@@ -22,6 +22,7 @@ void Player::Init(Board* board)
 		Pos {0, 1},
 	};
 	
+	
 	while (pos != dest)
 	{
 		// 현재 바라보는 방향을 기준으로 오른쪽으로 갈 수 있는지 확인
