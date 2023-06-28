@@ -11,7 +11,7 @@ struct Pos
 {
     bool operator == (Pos& other)
     {
-        return (y == other.y) && (x == other.x);
+        return y == other.y && x == other.x;
     }
     
     bool operator != (Pos& other)
