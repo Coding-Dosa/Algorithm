@@ -2,72 +2,52 @@
 #include <iostream>
 #include <memory.h>
 #include <vector>
+#include <queue>
 using namespace std;
 
+vector<vector<int>> adjacent;
+vector<bool> discovered;
 
 
-int board[50][50] = {0};
-bool visited[50][50] = {0};
-int M, N, K;
-int dy[4] = {-1, 0, 1, 0};
-int dx[4] = {0, -1, 0, 1};
-
-
-
-
-void Dfs(int y, int x)
+void CreateGraph()
 {
-    visited[y][x] = true;
-    for (int i = 0; i < 4; i++)
+    adjacent = vector<vector<int>>(6);
+    adjacent[0].push_back(1);
+    adjacent[0].push_back(3);
+    adjacent[1].push_back(0);
+    adjacent[1].push_back(2);
+    adjacent[1].push_back(3);
+    adjacent[3].push_back(4);
+    adjacent[5].push_back(4);
+}
+
+void Bfs(int here)
+{
+    queue<int> q;
+    discovered[here] = true;
+    q.push(here);
+    
+    while (!q.empty())
     {
-        int newY = y + dy[i];
-        int newX = x + dx[i];
-        
-        if(newY < 0 || newY >= N || newX < 0 || newX >= M)
-            continue;
-        
-        if (board[newY][newX] && !visited[newY][newX])
+        here = q.front();
+        q.pop();
+        cout << "Visited : " << here << endl;
+        for (int there : adjacent[here])
         {
-            Dfs(newY, newX);
+            // 만약 전에 발견된것이 아니었다면 발견을 외치고 큐에 푸시한다
+            if (discovered[there] == false)
+            {
+                discovered[there] = true;
+                q.push(there);
+            }
         }
-            
     }
 }
 
 int main(int argc, char* argv[])
 {
-    int T;
-    int x, y;
-    scanf("%d", &T);
-
-    for (int testCase = 0; testCase < T; testCase++)
-    {
-        scanf("%d %d %d", &M,&N,&K);
-        
-        memset(board, 0, sizeof(board));
-        memset(visited, 0, sizeof(visited));
-        
-        int ans = 0;
-
-        // 보드 세팅
-        for (int i = 0; i < K; i++)
-        {
-            scanf("%d %d", &x, &y);
-            board[y][x] = 1;
-        }
-
-        // 탐색
-        for (int y = 0; y < N; y++)
-        {
-            for (int x = 0; x < M; x++)
-            {
-                if (board[y][x] && !visited[y][x])
-                {
-                    ans++;
-                    Dfs(y, x);
-                }
-            }
-        }
-        printf("%d\n", ans);
-    }
+    discovered = vector<bool>(6, false);
+    
+    CreateGraph();
+    Bfs(0);
 }
