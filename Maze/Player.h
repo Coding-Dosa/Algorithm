@@ -16,8 +16,10 @@ public:
 	bool CanGo(Pos pos);
 
 private:
+	void SetPath(Pos& dest, map<Pos,Pos>& parent);
 	void RightHand();
 	void Bfs();
+	void AStar();
 	
 private:
 	Pos _pos = {};

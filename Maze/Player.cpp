@@ -9,7 +9,8 @@ void Player::Init(Board* board)
 	_board = board;
 	
 	// RightHand();
-	Bfs();
+	// Bfs();
+	AStar();
 }
 
 void Player::Update(uint64 deltaTick)
@@ -30,6 +31,23 @@ bool Player::CanGo(Pos pos)
 {
 	TileType tileType = _board->GetTileType(pos);
 	return tileType == TileType::EMPTY;
+}
+
+void Player::SetPath(Pos& dest, map<Pos,Pos>& parent)
+{
+	_path.clear();
+	_pathIndex = 0;
+	
+	Pos pos = dest;
+	while (true)
+	{
+		_path.push_back(pos);
+		// 시작점은 자신이 곧 부모이기때문
+		if(pos == parent[pos])  
+			break;
+		pos = parent[pos];
+	}
+	std::reverse(_path.begin(), _path.end());
 }
 
 void Player::RightHand()
@@ -147,17 +165,106 @@ void Player::Bfs()
 		}
 	}
 	
-	_path.clear();
-	// 거꾸로 거슬러 올라간다
-	pos = dest;
-	while (true)
+	SetPath(dest, parent);
+}
+
+struct PQNode
+{
+	bool operator < (const PQNode& other) const { return f < other.f; }
+	bool operator > (const PQNode& other) const { return f > other.f; }
+	int32 f;
+	int32 g;
+	Pos pos;
+};
+
+void Player::AStar()
+{
+	// 점수 매기기   F = G + H
+	// F : 최종 점수 (작을수록 좋음)
+	// G : 시작점에서 해당 좌표까지 이동하는데 드는 비용 
+	// H : 목적지에서 얼마나 가까운지 , 고정
+	Pos start = _pos;
+	Pos dest = _board->GetExitPos();
+
+	enum
 	{
-		_path.push_back(pos);
-		// 시작점은 자신이 곧 부모이기때문
-		if(pos == parent[pos])  
+		// DIR_COUNT = 4,
+		DIR_COUNT = 8,
+	};
+	
+	Pos movementForDirection[] = 
+	{
+		Pos {-1, 0},
+		Pos {0, -1},
+		Pos {1, 0},
+		Pos {0, 1},
+		Pos {-1, -1},
+		Pos { 1, -1},
+		Pos {1, 1},
+		Pos {-1, 1}, 
+	};
+
+	int32 cost[] =
+	{
+		10,
+		10,
+		10,
+		10,
+		14,
+		14,
+		14,
+		14,
+	};
+
+	const int32 size = _board->GetSize();
+
+	vector<vector<bool>> visited(size, vector<bool>(size, false));
+	vector<vector<int32>> best(size, vector<int32>(size, INT32_MAX));
+	map<Pos, Pos> parent;
+	priority_queue<PQNode, vector<PQNode> ,greater<PQNode>> pq;
+	// 예약(발견) 시스템 구현
+	// 뒤늦게 더 좋은 경로가 발견될 수 있음 -> 예외 처리 필수
+
+	// 초기값
+	int32 g = 0;
+	int32 h = 10 * (abs(dest.y - start.y) + abs(dest.x - start.x));
+	pq.push(PQNode{g+h, g, start});
+	best[start.y][start.x] = g + h;
+	parent[start] = start;
+
+	while (!pq.empty())
+	{
+		PQNode node = pq.top();
+		pq.pop();
+
+		// 더 빠른 경로로 인해서 이미 방문된 경우 스킵
+		if (visited[node.pos.y][node.pos.x] == true)
+			continue;
+		visited[node.pos.y][node.pos.x] = true;
+
+		if (node.pos == dest)
 			break;
 
-		pos = parent[pos];
+		for (int32 dir = 0; dir < DIR_COUNT; dir++)
+		{
+			Pos nextPos = node.pos + movementForDirection[dir];
+			if(CanGo(nextPos) == false)
+				continue;
+			if(visited[nextPos.y][nextPos.x])
+				continue;
+
+			int32 g = node.g + cost[dir];
+			int32 h = 10 * (abs(dest.y - nextPos.y) + abs(dest.x - nextPos.x));
+
+			if(best[nextPos.y][nextPos.x] <= g + h)
+				continue;
+
+			// 예약 진행
+			best[nextPos.y][nextPos.x] = g + h;
+			pq.push( PQNode{ g+h, g, nextPos});
+			parent[nextPos] = node.pos;
+		}
 	}
-	std::reverse(_path.begin(), _path.end());
+
+	SetPath(dest, parent);
 }
