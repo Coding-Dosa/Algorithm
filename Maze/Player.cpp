@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Player.h"
 #include "Board.h"
+#include <stack>
 
 void Player::Init(Board* board)
 {
@@ -48,6 +49,29 @@ void Player::Init(Board* board)
 			_dir = (_dir + 1) % DIR_COUNT;
 		}
 	}
+
+	// 스택사용해서 경로 걸러주기
+	stack<Pos> s;
+	for (int i = 0; i < _path.size() -1; i++)
+	{
+		if (!s.empty() && s.top() == _path[i + 1])
+			s.pop();
+		else
+			s.push(_path[i]);
+	}
+
+	// 목적지 도착
+	if (!_path.empty())
+		s.push(_path.back());
+
+	vector<Pos> path;
+	while (!s.empty())
+	{
+		path.push_back(s.top());
+		s.pop();
+	}
+	std::reverse(path.begin(), path.end());
+	_path = path;
 }
 
 void Player::Update(uint64 deltaTick)
