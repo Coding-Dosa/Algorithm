@@ -26,6 +26,7 @@ public:
 
     TileType GetTileType(Pos pos);
     ConsoleColor GetTileColor(Pos pos);
+    int32 GetSize() { return _size; }
 
     Pos GetEnterPos() { return Pos{ 1, 1 }; }
     Pos GetExitPos() { return Pos{ _size - 2, _size - 2 }; }

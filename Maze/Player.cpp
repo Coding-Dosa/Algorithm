@@ -8,12 +8,38 @@ void Player::Init(Board* board)
 	_pos = board->GetEnterPos();
 	_board = board;
 	
+	// RightHand();
+	Bfs();
+}
+
+void Player::Update(uint64 deltaTick)
+{
+	if (_pathIndex >= _path.size())
+		return;
+	
+	_sumTick += deltaTick;
+	if (_sumTick > MOVE_TICK)
+	{
+		_sumTick = 0;
+		_pos = _path[_pathIndex];
+		_pathIndex++;
+	}
+}
+
+bool Player::CanGo(Pos pos)
+{
+	TileType tileType = _board->GetTileType(pos);
+	return tileType == TileType::EMPTY;
+}
+
+void Player::RightHand()
+{
 	Pos pos = _pos;
 
 	_path.clear();
 	_path.push_back(pos);
 	
-	Pos dest = board->GetExitPos();
+	Pos dest = _board->GetExitPos();
 
 	Pos movementForDirection[4] = 
 	{
@@ -74,22 +100,64 @@ void Player::Init(Board* board)
 	_path = path;
 }
 
-void Player::Update(uint64 deltaTick)
+void Player::Bfs()
 {
-	if (_pathIndex >= _path.size())
-		return;
-	
-	_sumTick += deltaTick;
-	if (_sumTick > MOVE_TICK)
-	{
-		_sumTick = 0;
-		_pos = _path[_pathIndex];
-		_pathIndex++;
-	}
-}
+	Pos pos = _pos;
 
-bool Player::CanGo(Pos pos)
-{
-	TileType tileType = _board->GetTileType(pos);
-	return tileType == TileType::EMPTY;
+	Pos dest = _board->GetExitPos();
+
+	Pos movementForDirection[4] = 
+	{
+		Pos {-1, 0},
+		Pos {0, -1},
+		Pos {1, 0},
+		Pos {0, 1},
+	};
+
+	const int32 size = _board->GetSize();
+	vector<vector<bool>> discovered(size, vector<bool>(size, false));
+	// A는 B로 인해 발견함
+	map<Pos, Pos> parent;
+	
+	queue<Pos> q;
+	q.push(pos);
+	discovered[pos.y][pos.x] = true;
+	parent[pos] = pos;
+
+	while (!q.empty())
+	{
+		pos = q.front();
+		q.pop();
+
+		if (pos == dest)
+			break;
+
+		for (int32 dir = 0; dir < 4; dir++)
+		{
+			Pos nextPos = pos + movementForDirection[dir];
+
+			if (!CanGo(nextPos))
+				continue;
+			if (discovered[nextPos.y][nextPos.x])
+				continue;
+			
+			q.push(nextPos);
+			discovered[nextPos.y][nextPos.x] = true;
+			parent[nextPos] = pos;
+		}
+	}
+	
+	_path.clear();
+	// 거꾸로 거슬러 올라간다
+	pos = dest;
+	while (true)
+	{
+		_path.push_back(pos);
+		// 시작점은 자신이 곧 부모이기때문
+		if(pos == parent[pos])  
+			break;
+
+		pos = parent[pos];
+	}
+	std::reverse(_path.begin(), _path.end());
 }
